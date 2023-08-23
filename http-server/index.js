@@ -1,21 +1,34 @@
-// const { Console } = require("console");
-// const fs = require("fs");
-// fs.writeFile(
-//   "sample.txt",
-//   "Hello World",
-//   (err)=>{
-//     if(err) throw err;
-//     console.log("File created!");
-//   }
-// );
-
-const http= require("http");
+const http = require("http");
 const fs = require("fs");
-const server = http.createServer((req,res) => {
-  const stream = fs.createReadStream("sample.txt");
-  stream.pipe(res);
-  fs.readFile("sample.txt",(err,data)=>{
-    res.end(data);
-  })
+
+let homeContent="";
+let projectContent="";
+
+fs.readFile("home.html", (err,home)=>{
+  if(err){
+    throw err;
+  }
+  homeContent = home;
 });
-server.listen(3000);
+
+fs.readFile("project.html", (err,project)=>{
+  if(err){
+    throw err;
+  }
+  projectContent = project;
+});
+
+http.createServer((request, response) => {
+  let url = request.url;
+  response.writeHeader(200,{"Content-Type": "text/html"});
+  switch(url){
+    case "/project":
+      response.write(projectContent);
+      response.end();
+      break;
+    default:
+      response.write(homeContent);
+      response.end();
+  }
+})
+.listen(3000);
